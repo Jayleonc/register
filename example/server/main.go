@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"github.com/Jayleonc/register/internal/core/resolver"
 	"github.com/Jayleonc/register/sdk"
 	"github.com/gin-gonic/gin"
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -64,12 +63,16 @@ func main() {
 		}),
 	)
 
+	srv := &http.Server{
+		Addr:    port,
+		Handler: router,
+	}
+
 	s := sdk.NewServer(
 		"user_service",
 		sdk.WithRegistry(client),
 		sdk.WithRegistryTimeout(10*time.Second),
-		sdk.WithListener(listener),
-		sdk.WithResolver(resolver.NewEtcdResolver(client)),
+		sdk.WithHTTPServer(srv),
 	)
 
 	if err := s.Register(globalInterfaceBuilder); err != nil {
@@ -77,14 +80,9 @@ func main() {
 	}
 	defer s.Close()
 
-	srv := &http.Server{
-		Addr:    port,
-		Handler: router,
-	}
-
 	// ============================================================================
 	// 启动Gin服务器
-	if err := srv.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if err := s.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("listen: %s\n", err)
 	}
 

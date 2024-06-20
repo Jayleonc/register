@@ -61,12 +61,18 @@ func main() {
 	if err != nil {
 		return
 	}
+
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: router,
+	}
+
 	// 创建服务器实例
 	server := sdk.NewServer(
 		"registry-service",
 		sdk.WithRegistry(client),
 		sdk.WithRegistryTimeout(10*time.Second),
-		sdk.WithListener(listener),
+		sdk.WithHTTPServer(srv),
 	)
 
 	// 注册服务
@@ -93,14 +99,9 @@ func main() {
 		}
 	}()
 
-	srv := &http.Server{
-		Addr:    addr,
-		Handler: router,
-	}
-
 	// ============================================================================
 	// 启动Gin服务器
-	if err := srv.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if err := server.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("listen: %s\n", err)
 	}
 
