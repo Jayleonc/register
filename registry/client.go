@@ -74,7 +74,7 @@ func (c *Client) Dial(ctx context.Context, service string) (*http.Client, error)
 	return c.Client, nil
 }
 
-func (c *Client) GetServiceInterfaces(ctx context.Context, service string) ([]ServiceInterface, error) {
+func (c *Client) GetServiceInterfaces(ctx context.Context, service string) ([]Api, error) {
 	if c.resolver == nil {
 		return nil, fmt.Errorf("resolver is not set")
 	}
@@ -90,7 +90,7 @@ func (c *Client) GetServiceInterfaces(ctx context.Context, service string) ([]Se
 
 	// 选择第一个实例，获取其接口描述
 	selectedInstance := instances[0]
-	var interfaces []ServiceInterface
+	var interfaces []Api
 	err = json.Unmarshal([]byte(selectedInstance.Metadata["interfaces"]), &interfaces)
 	if err != nil {
 		return nil, err
