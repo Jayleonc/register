@@ -1,10 +1,10 @@
 package sdk
 
 import (
-	"Jayleonc/register/internal/core/registry"
-	"Jayleonc/register/internal/core/resolver"
 	"context"
 	"encoding/json"
+	"github.com/Jayleonc/register/internal/core/registry"
+	"github.com/Jayleonc/register/internal/core/resolver"
 	"net"
 	"net/http"
 	"time"

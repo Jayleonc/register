@@ -1,10 +1,10 @@
 package ginx
 
 import (
-	"Jayleonc/register/pkg/netx"
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Jayleonc/register/pkg/netx"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"

@@ -1,9 +1,9 @@
 package di
 
 import (
-	"Jayleonc/register/internal/core/registry"
-	"Jayleonc/register/internal/core/resolver"
-	"Jayleonc/register/sdk"
+	"github.com/Jayleonc/register/internal/core/registry"
+	"github.com/Jayleonc/register/internal/core/resolver"
+	"github.com/Jayleonc/register/sdk"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 

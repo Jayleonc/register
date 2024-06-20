@@ -1,7 +1,7 @@
 package wire
 
 import (
-	"Jayleonc/register/pkg/ginx"
+	"github.com/Jayleonc/register/pkg/ginx"
 )
 
 type App struct {

@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"Jayleonc/register/cmd/command"
 	"fmt"
+	"github.com/Jayleonc/register/cmd/command"
 	"github.com/spf13/cobra"
 	"os"
 )
