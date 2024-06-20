@@ -3,9 +3,8 @@ package sdk
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"github.com/Jayleonc/register/internal/core/registry"
-	"net"
+	"net/http"
 	"time"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -15,8 +14,7 @@ type Server struct {
 	name            string
 	registry        *registry.EtcdRegistry
 	registryTimeout time.Duration
-	listener        net.Listener
-	addr            string // 新增 addr 字段以便创建监听器
+	*http.Server
 }
 
 type Option func(*Server)
@@ -33,15 +31,9 @@ func WithRegistryTimeout(timeout time.Duration) Option {
 	}
 }
 
-func WithListener(listener net.Listener) Option {
+func WithHTTPServer(httpServer *http.Server) Option {
 	return func(s *Server) {
-		s.listener = listener
-	}
-}
-
-func WithAddr(addr string) Option {
-	return func(s *Server) {
-		s.addr = addr
+		s.Server = httpServer
 	}
 }
 
@@ -59,18 +51,6 @@ func NewServer(name string, opts ...Option) *Server {
 }
 
 func (s *Server) Register(interfaceBuilder *InterfaceBuilder) error {
-
-	if s.listener == nil {
-		if s.addr == "" {
-			return errors.New("listener or addr must be provided")
-		}
-		listener, err := net.Listen("tcp", s.addr)
-		if err != nil {
-			return err
-		}
-		s.listener = listener
-	}
-
 	// 构建接口信息
 	interfaces := interfaceBuilder.GetInterfaces()
 	interfaceData, err := json.Marshal(interfaces)
@@ -83,7 +63,7 @@ func (s *Server) Register(interfaceBuilder *InterfaceBuilder) error {
 		defer cancel()
 		serviceInstance := registry.ServiceInstance{
 			Name:    s.name,
-			Address: s.listener.Addr().String(), // 使用传入的 listener
+			Address: s.Server.Addr, // 使用传入的 listener
 			Metadata: map[string]string{
 				"interfaces": string(interfaceData),
 			},
@@ -103,12 +83,11 @@ func (s *Server) Close() error {
 		defer cancel()
 		err := s.registry.UnRegister(ctx, registry.ServiceInstance{
 			Name:    s.name,
-			Address: s.listener.Addr().String(),
+			Address: s.Server.Addr,
 		})
 		return err
 	}
 
-	_ = s.listener.Close()
 	return nil
 }
 
