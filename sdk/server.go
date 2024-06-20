@@ -6,7 +6,6 @@ import (
 	"github.com/Jayleonc/register/internal/core/registry"
 	"github.com/Jayleonc/register/internal/core/resolver"
 	"net"
-	"net/http"
 	"time"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -18,7 +17,6 @@ type Server struct {
 	registryTimeout time.Duration
 	listener        net.Listener
 	resolver        resolver.Resolver
-	*http.Server
 }
 
 type Option func(*Server)
@@ -41,16 +39,15 @@ func WithResolver(res resolver.Resolver) Option {
 	}
 }
 
-func WithHTTPServer(httpServer *http.Server) Option {
+func WithListener(listener net.Listener) Option {
 	return func(s *Server) {
-		s.Server = httpServer
+		s.listener = listener
 	}
 }
 
 func NewServer(name string, opts ...Option) *Server {
 	server := &Server{
 		name:            name,
-		Server:          &http.Server{},
 		registryTimeout: 5 * time.Second,
 	}
 
@@ -61,13 +58,8 @@ func NewServer(name string, opts ...Option) *Server {
 	return server
 }
 
-func (s *Server) Start(addr string, interfaceBuilder *InterfaceBuilder) error {
-	listener, err := net.Listen("tcp", addr)
-	if err != nil {
-		return err
-	}
-
-	s.listener = listener
+func (s *Server) Register(interfaceBuilder *InterfaceBuilder) error {
+	// 使用已经传入的 listener
 
 	// 构建接口信息
 	interfaces := interfaceBuilder.GetInterfaces()
@@ -81,7 +73,7 @@ func (s *Server) Start(addr string, interfaceBuilder *InterfaceBuilder) error {
 		defer cancel()
 		serviceInstance := registry.ServiceInstance{
 			Name:    s.name,
-			Address: s.listener.Addr().String(),
+			Address: s.listener.Addr().String(), // 使用传入的 listener
 			Metadata: map[string]string{
 				"interfaces": string(interfaceData),
 			},
@@ -90,17 +82,12 @@ func (s *Server) Start(addr string, interfaceBuilder *InterfaceBuilder) error {
 		if err != nil {
 			return err
 		}
-		defer func() {
-			_ = s.registry.Close()
-		}()
 	}
 
-	s.Addr = addr
-	err = s.Serve(listener)
-	return err
+	return nil
 }
 
-func (s *Server) Stop() error {
+func (s *Server) Close() error {
 	if s.registry != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), s.registryTimeout)
 		defer cancel()
@@ -111,7 +98,6 @@ func (s *Server) Stop() error {
 		return err
 	}
 
-	_ = s.Shutdown(context.Background())
 	_ = s.listener.Close()
 	return nil
 }

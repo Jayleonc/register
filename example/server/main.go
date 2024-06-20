@@ -1,11 +1,13 @@
 package main
 
 import (
+	"errors"
 	"github.com/Jayleonc/register/internal/core/resolver"
 	"github.com/Jayleonc/register/sdk"
 	"github.com/gin-gonic/gin"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"log"
+	"net"
 	"net/http"
 	"time"
 )
@@ -23,7 +25,10 @@ func main() {
 
 	// 构建全局的 InterfaceBuilder
 	globalInterfaceBuilder := sdk.NewInterfaceBuilder()
-
+	listener, err := net.Listen("tcp", port)
+	if err != nil {
+		return
+	}
 	// 配置路由，使用 HandlerBuilder 添加参数和返回值信息
 	router.GET("/health", sdk.NewHandlerBuilder(globalInterfaceBuilder, "GET", "/health").
 		AddReturn("status", "string").
@@ -63,14 +68,24 @@ func main() {
 		"user_service",
 		sdk.WithRegistry(client),
 		sdk.WithRegistryTimeout(10*time.Second),
-		sdk.WithHTTPServer(&http.Server{
-			Handler: router,
-			Addr:    port,
-		}),
+		sdk.WithListener(listener),
 		sdk.WithResolver(resolver.NewEtcdResolver(client)),
 	)
 
-	if err := s.Start(port, globalInterfaceBuilder); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+	if err := s.Register(globalInterfaceBuilder); err != nil {
+		log.Fatalf("Failed to register service: %v", err)
 	}
+	defer s.Close()
+
+	srv := &http.Server{
+		Addr:    port,
+		Handler: router,
+	}
+
+	// ============================================================================
+	// 启动Gin服务器
+	if err := srv.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Fatalf("listen: %s\n", err)
+	}
+
 }

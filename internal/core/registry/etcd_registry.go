@@ -48,6 +48,8 @@ func (r *EtcdRegistry) Register(ctx context.Context, si ServiceInstance) error {
 		return fmt.Errorf("failed to register service: %w", err)
 	}
 
+	fmt.Println("Register service: ", key)
+	fmt.Println(string(val))
 	// 会话管理会自动处理租约的续约
 	return nil
 }

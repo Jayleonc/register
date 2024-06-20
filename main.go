@@ -2,15 +2,18 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/Jayleonc/register/sdk"
 	"github.com/gin-gonic/gin"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"log"
+	"net"
 	"net/http"
 	"time"
 )
 
 func main() {
+	addr := ":8080"
 	// 创建 etcd 客户端
 	client, err := clientv3.New(clientv3.Config{
 		Endpoints: []string{"localhost:2379"},
@@ -54,17 +57,23 @@ func main() {
 			log.Printf("Config changed: %s = %s", "example_key", newValue)
 		}
 	}()
-
+	listener, err := net.Listen("tcp", addr)
+	if err != nil {
+		return
+	}
 	// 创建服务器实例
 	server := sdk.NewServer(
 		"registry-service",
 		sdk.WithRegistry(client),
 		sdk.WithRegistryTimeout(10*time.Second),
-		sdk.WithHTTPServer(&http.Server{
-			Handler: router,
-			Addr:    ":8080",
-		}),
+		sdk.WithListener(listener),
 	)
+
+	// 注册服务
+	if err := server.Register(globalInterfaceBuilder); err != nil {
+		log.Fatalf("Failed to register service: %v", err)
+	}
+	defer server.Close()
 
 	// 启动一个 goroutine 监听所有服务的变更事件
 	go func() {
@@ -84,8 +93,15 @@ func main() {
 		}
 	}()
 
-	// 启动 HTTP 服务器
-	if err := server.Start(":8080", globalInterfaceBuilder); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: router,
 	}
+
+	// ============================================================================
+	// 启动Gin服务器
+	if err := srv.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Fatalf("listen: %s\n", err)
+	}
+
 }
