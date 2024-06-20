@@ -3,8 +3,8 @@ package sdk
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/Jayleonc/register/internal/core/registry"
-	"github.com/Jayleonc/register/internal/core/resolver"
 	"net"
 	"time"
 
@@ -16,7 +16,7 @@ type Server struct {
 	registry        *registry.EtcdRegistry
 	registryTimeout time.Duration
 	listener        net.Listener
-	resolver        resolver.Resolver
+	addr            string // 新增 addr 字段以便创建监听器
 }
 
 type Option func(*Server)
@@ -33,15 +33,15 @@ func WithRegistryTimeout(timeout time.Duration) Option {
 	}
 }
 
-func WithResolver(res resolver.Resolver) Option {
-	return func(s *Server) {
-		s.resolver = res
-	}
-}
-
 func WithListener(listener net.Listener) Option {
 	return func(s *Server) {
 		s.listener = listener
+	}
+}
+
+func WithAddr(addr string) Option {
+	return func(s *Server) {
+		s.addr = addr
 	}
 }
 
@@ -59,7 +59,17 @@ func NewServer(name string, opts ...Option) *Server {
 }
 
 func (s *Server) Register(interfaceBuilder *InterfaceBuilder) error {
-	// 使用已经传入的 listener
+
+	if s.listener == nil {
+		if s.addr == "" {
+			return errors.New("listener or addr must be provided")
+		}
+		listener, err := net.Listen("tcp", s.addr)
+		if err != nil {
+			return err
+		}
+		s.listener = listener
+	}
 
 	// 构建接口信息
 	interfaces := interfaceBuilder.GetInterfaces()
