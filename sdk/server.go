@@ -1,8 +1,8 @@
 package sdk
 
 import (
-	"Jayleonc/gateway/internal/core/registry"
-	"Jayleonc/gateway/internal/core/resolver"
+	"Jayleonc/register/internal/core/registry"
+	"Jayleonc/register/internal/core/resolver"
 	"context"
 	"encoding/json"
 	"net"

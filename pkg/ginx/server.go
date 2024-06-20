@@ -1,7 +1,7 @@
 package ginx
 
 import (
-	"Jayleonc/gateway/pkg/netx"
+	"Jayleonc/register/pkg/netx"
 	"context"
 	"errors"
 	"fmt"

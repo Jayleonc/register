@@ -1,7 +1,7 @@
 package command
 
 import (
-	"Jayleonc/gateway/cmd/wire"
+	"Jayleonc/register/cmd/wire"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
@@ -34,22 +34,6 @@ func runApp() {
 
 	app := wire.InitWebServer()
 
-	// 启动重试/异步任务
-	app.Scheduler.Start()
-	log.Println("Scheduler started.")
-
-	// 启动定时任务
-	app.Cron.Start()
-	log.Println("Cron jobs started.")
-
-	// 启动消费者
-	for _, consumer := range app.Consumers {
-		err := consumer.Start()
-		if err != nil {
-			panic(err)
-		}
-	}
-
 	// 启动 Web 服务器并等待其退出
 	if err := app.Web.Start(); err != nil {
 		log.Fatalf("Web server failed to start: %v", err)
@@ -57,14 +41,6 @@ func runApp() {
 
 	// 服务器已优雅退出，现在关闭其他服务
 	log.Println("Shutting down other services...")
-
-	// 优雅停止定时任务
-	app.Cron.Stop()
-	log.Println("Cron jobs stopped.")
-
-	// 关闭重试/异步任务
-	app.Scheduler.Stop()
-	log.Println("Scheduler stopped.")
 
 	log.Println("All services stopped, exiting application.")
 }

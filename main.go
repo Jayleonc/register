@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Jayleonc/gateway/sdk"
+	"Jayleonc/register/sdk"
 	"context"
 	"github.com/gin-gonic/gin"
 	clientv3 "go.etcd.io/etcd/client/v3"

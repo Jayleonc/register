@@ -1,4 +1,4 @@
-module Jayleonc/gateway
+module Jayleonc/register
 
 go 1.21.8
 

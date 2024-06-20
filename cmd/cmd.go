@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"Jayleonc/gateway/cmd/command"
+	"Jayleonc/register/cmd/command"
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"

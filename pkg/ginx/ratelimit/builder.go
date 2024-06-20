@@ -1,7 +1,7 @@
 package ratelimit
 
 import (
-	"Jayleonc/gateway/pkg/limiter"
+	"Jayleonc/register/pkg/limiter"
 	_ "embed"
 	"fmt"
 	"github.com/gin-gonic/gin"

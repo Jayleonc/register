@@ -1,7 +1,7 @@
 package di
 
 import (
-	"Jayleonc/gateway/pkg/netx"
+	"Jayleonc/register/pkg/netx"
 	"time"
 )
 

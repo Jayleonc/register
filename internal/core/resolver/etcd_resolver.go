@@ -1,7 +1,7 @@
 package resolver
 
 import (
-	"Jayleonc/gateway/internal/core/registry"
+	"Jayleonc/register/internal/core/registry"
 	"context"
 	"encoding/json"
 	"fmt"

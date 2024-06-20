@@ -1,8 +1,8 @@
 package web
 
 import (
-	"Jayleonc/gateway/internal/domain"
-	"Jayleonc/gateway/pkg/ginx"
+	"Jayleonc/register/internal/domain"
+	"Jayleonc/register/pkg/ginx"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"

@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"time"
 
-	"Jayleonc/gateway/internal/core/resolver"
+	"Jayleonc/register/internal/core/resolver"
 )
 
 type ClientOption func(c *Client)

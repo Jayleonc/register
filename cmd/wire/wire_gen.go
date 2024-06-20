@@ -7,13 +7,7 @@
 package wire
 
 import (
-	"Jayleonc/gateway/di"
-	"Jayleonc/gateway/internal/events/demo"
-	"Jayleonc/gateway/internal/repository"
-	"Jayleonc/gateway/internal/repository/cache"
-	"Jayleonc/gateway/internal/repository/dao"
-	"Jayleonc/gateway/internal/service"
-	"Jayleonc/gateway/internal/web"
+	"Jayleonc/register/di"
 	"github.com/google/wire"
 )
 
@@ -22,31 +16,9 @@ import (
 func InitWebServer() *App {
 	cmdable := di.InitRedis()
 	v := di.InitGinMiddlewares(cmdable)
-	db := di.InitDB()
-	userDAO := dao.NewUserDAO(db)
-	userCache := cache.NewUserCache(cmdable)
-	userRepository := repository.NewCachedUserRepository(userDAO, userCache)
-	userService := service.NewUserService(userRepository)
-	httpClientI := di.InitHTTPClient()
-	clientI := di.InitLogClient(httpClientI)
-	senderI := di.InitLogSender(clientI)
-	logger := di.InitLogger(senderI)
-	client := di.InitKafkaSaramaClient()
-	syncProducer := di.NewSyncProducer(client)
-	producer := demo.NewDemoProducer(syncProducer)
-	userHandler := web.NewUserHandler(userService, logger, producer)
-	server := di.InitWebServer(v, userHandler)
-	serviceDemo := service.NewDemo()
-	scheduler := di.InitRetryScheduler(serviceDemo)
-	cron := di.InitJobs(logger, serviceDemo)
-	consumer := demo.NewDemoConsumer(client, logger)
-	v2 := di.RegisterConsumers(consumer)
+	server := di.InitWebServer(v)
 	app := &App{
-		Web:       server,
-		LogSender: senderI,
-		Scheduler: scheduler,
-		Cron:      cron,
-		Consumers: v2,
+		Web: server,
 	}
 	return app
 }
@@ -58,18 +30,3 @@ var thirdPartySet = wire.NewSet(di.InitDB, di.InitRedis)
 
 // webServerSet 用来注入 web 服务
 var webServerSet = wire.NewSet(di.InitWebServer, di.InitGinMiddlewares)
-
-// logSet 用来注入日志服务
-var logSet = wire.NewSet(di.InitLogClient, di.InitLogSender, di.InitLogger)
-
-// httpSet 用来注入 http 客户端
-var httpSet = wire.NewSet(di.InitHTTPClient)
-
-// retrySet 用来注入重试任务
-var retrySet = wire.NewSet(di.InitRetryScheduler, service.NewDemo, di.InitJobs)
-
-// kafkaSet 用来注入 kafka 服务
-var kafkaSet = wire.NewSet(di.InitKafkaSaramaClient, di.NewSyncProducer, di.RegisterConsumers, demo.NewDemoConsumer, demo.NewDemoProducer)
-
-// userSet 用来注入用户服务
-var userSet = wire.NewSet(dao.NewUserDAO, cache.NewUserCache, repository.NewCachedUserRepository, service.NewUserService, web.NewUserHandler)

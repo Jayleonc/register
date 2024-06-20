@@ -1,11 +1,10 @@
 package di
 
 import (
-	"Jayleonc/gateway/internal/web"
-	"Jayleonc/gateway/pkg/ginx"
-	"Jayleonc/gateway/pkg/ginx/middleware"
-	"Jayleonc/gateway/pkg/ginx/ratelimit"
-	"Jayleonc/gateway/pkg/limiter"
+	"Jayleonc/register/pkg/ginx"
+	"Jayleonc/register/pkg/ginx/middleware"
+	"Jayleonc/register/pkg/ginx/ratelimit"
+	"Jayleonc/register/pkg/limiter"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -13,12 +12,9 @@ import (
 	"time"
 )
 
-func InitWebServer(mdls []gin.HandlerFunc, u *web.UserHandler) *ginx.Server {
+func InitWebServer(mdls []gin.HandlerFunc) *ginx.Server {
 	engine := gin.Default()
 	engine.Use(mdls...) // 使用中间件
-
-	// 注册路由
-	u.RegisterRoutes(engine)
 
 	server := &ginx.Server{
 		Engine: engine,
