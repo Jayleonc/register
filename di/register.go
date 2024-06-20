@@ -1,10 +1,9 @@
 package di
 
 import (
-	"github.com/Jayleonc/register/internal/core/registry"
-	"github.com/Jayleonc/register/internal/core/resolver"
-	registry2 "github.com/Jayleonc/register/registry"
-	"github.com/Jayleonc/register/sdk"
+	"Jayleonc/register/internal/core/registry"
+	"Jayleonc/register/internal/core/resolver"
+	"Jayleonc/register/sdk"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
@@ -22,6 +21,6 @@ func provideResolver(client *clientv3.Client) resolver.Resolver {
 	return resolver.NewEtcdResolver(client)
 }
 
-func provideRegisterServer(client *clientv3.Client) *registry2.Server {
-	return registry2.NewServer("my-service", registry2.WithRegistry(client), sdk.WithResolver(resolver.NewEtcdResolver(client)))
+func provideRegisterServer(client *clientv3.Client) *sdk.Server {
+	return sdk.NewServer("my-service", sdk.WithRegistry(client), sdk.WithResolver(resolver.NewEtcdResolver(client)))
 }

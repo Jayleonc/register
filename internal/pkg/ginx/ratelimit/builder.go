@@ -1,9 +1,9 @@
 package ratelimit
 
 import (
+	"Jayleonc/register/pkg/limiter"
 	_ "embed"
 	"fmt"
-	"github.com/Jayleonc/register/pkg/limiter"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

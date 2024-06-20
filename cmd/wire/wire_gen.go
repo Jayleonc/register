@@ -7,7 +7,7 @@
 package wire
 
 import (
-	"github.com/Jayleonc/register/di"
+	"Jayleonc/register/di"
 	"github.com/google/wire"
 )
 

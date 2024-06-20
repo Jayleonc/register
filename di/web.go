@@ -1,10 +1,10 @@
 package di
 
 import (
-	"github.com/Jayleonc/register/pkg/ginx"
-	"github.com/Jayleonc/register/pkg/ginx/middleware"
-	"github.com/Jayleonc/register/pkg/ginx/ratelimit"
-	"github.com/Jayleonc/register/pkg/limiter"
+	"Jayleonc/register/pkg/ginx"
+	"Jayleonc/register/pkg/ginx/middleware"
+	"Jayleonc/register/pkg/ginx/ratelimit"
+	"Jayleonc/register/pkg/limiter"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"

@@ -1,13 +1,14 @@
-package registry
+package sdk
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"time"
 
-	"github.com/Jayleonc/register/internal/core/resolver"
+	"Jayleonc/register/internal/core/resolver"
 )
 
 type ClientOption func(c *Client)
@@ -60,7 +61,7 @@ func (c *Client) Dial(ctx context.Context, service string) (*http.Client, error)
 			return nil, fmt.Errorf("no instances found for service: %s", service)
 		}
 
-		// 应接入负债均衡器
+		// 这里选择一个实例作为示例，可以根据实际需求实现负载均衡策略
 		selectedInstance := instances[0]
 		c.Client.Transport = &http.Transport{
 			Proxy: http.ProxyURL(&url.URL{
@@ -71,4 +72,29 @@ func (c *Client) Dial(ctx context.Context, service string) (*http.Client, error)
 	}
 
 	return c.Client, nil
+}
+
+func (c *Client) GetServiceInterfaces(ctx context.Context, service string) ([]ServiceInterface, error) {
+	if c.resolver == nil {
+		return nil, fmt.Errorf("resolver is not set")
+	}
+
+	instances, err := c.resolver.Resolve(ctx, service)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(instances) == 0 {
+		return nil, fmt.Errorf("no instances found for service: %s", service)
+	}
+
+	// 选择第一个实例，获取其接口描述
+	selectedInstance := instances[0]
+	var interfaces []ServiceInterface
+	err = json.Unmarshal([]byte(selectedInstance.Metadata["interfaces"]), &interfaces)
+	if err != nil {
+		return nil, err
+	}
+
+	return interfaces, nil
 }
