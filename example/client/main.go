@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/Jayleonc/register/internal/core/resolver"
-	"github.com/Jayleonc/register/sdk"
+	"github.com/Jayleonc/register/registry"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"log"
 )
@@ -18,8 +18,8 @@ func main() {
 	}
 
 	// 创建 SDK 客户端
-	sdkClient, err := sdk.NewClient(
-		sdk.ClientWithResolver(resolver.NewEtcdResolver(client)),
+	sdkClient, err := registry.NewClient(
+		registry.ClientWithResolver(resolver.NewEtcdResolver(client)),
 	)
 	if err != nil {
 		log.Fatalf("Failed to create SDK client: %v", err)
@@ -41,5 +41,4 @@ func main() {
 			log.Printf("Return: field:%s type:%s", ret.Name, ret.Type)
 		}
 	}
-
 }

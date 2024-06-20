@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/Jayleonc/register/sdk"
+	"github.com/Jayleonc/register/registry"
 	"github.com/gin-gonic/gin"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"log"
@@ -22,10 +22,10 @@ func main() {
 		log.Fatalf("Failed to create etcd client: %v", err)
 	}
 
-	// 构建全局的 InterfaceBuilder
-	globalInterfaceBuilder := sdk.NewInterfaceBuilder()
-	// 使用 Gin 框架创建 HTTP 服务器
 	router := gin.Default()
+	// 构建全局的 InterfaceBuilder
+	globalInterfaceBuilder := registry.NewApiDescriptor(router)
+	// 使用 Gin 框架创建 HTTP 服务器
 
 	// 配置路由
 	router.GET("/health", func(c *gin.Context) {
@@ -36,7 +36,7 @@ func main() {
 
 	// 演示如何使用配置中心
 	ctx := context.Background()
-	configCenter := sdk.NewConfigCenter(client)
+	configCenter := registry.NewConfigCenter(client)
 	err = configCenter.PutConfig(ctx, "example_key", "example_value")
 	if err != nil {
 		log.Fatalf("Failed to put config: %v", err)
@@ -68,11 +68,11 @@ func main() {
 	}
 
 	// 创建服务器实例
-	server := sdk.NewServer(
+	server := registry.NewServer(
 		"registry-service",
-		sdk.WithRegistry(client),
-		sdk.WithRegistryTimeout(10*time.Second),
-		sdk.WithHTTPServer(srv),
+		registry.WithRegistry(client),
+		registry.WithRegistryTimeout(10*time.Second),
+		registry.WithHTTPServer(srv),
 	)
 
 	// 注册服务

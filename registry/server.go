@@ -1,4 +1,4 @@
-package sdk
+package registry
 
 import (
 	"context"
@@ -50,7 +50,7 @@ func NewServer(name string, opts ...Option) *Server {
 	return server
 }
 
-func (s *Server) Register(interfaceBuilder *InterfaceBuilder) error {
+func (s *Server) Register(interfaceBuilder *ApiDescriptor) error {
 	// 构建接口信息
 	interfaces := interfaceBuilder.GetInterfaces()
 	interfaceData, err := json.Marshal(interfaces)
