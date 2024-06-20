@@ -61,7 +61,7 @@ func (c *Client) Dial(ctx context.Context, service string) (*http.Client, error)
 			return nil, fmt.Errorf("no instances found for service: %s", service)
 		}
 
-		// 这里选择一个实例作为示例，可以根据实际需求实现负载均衡策略
+		// 应接入负债均衡器
 		selectedInstance := instances[0]
 		c.Client.Transport = &http.Transport{
 			Proxy: http.ProxyURL(&url.URL{
@@ -74,27 +74,26 @@ func (c *Client) Dial(ctx context.Context, service string) (*http.Client, error)
 	return c.Client, nil
 }
 
-func (c *Client) GetServiceInterfaces(ctx context.Context, service string) ([]Api, error) {
+func (c *Client) GetServiceInterfaces(ctx context.Context, service string) ([]Api, string, error) {
 	if c.resolver == nil {
-		return nil, fmt.Errorf("resolver is not set")
+		return nil, "", fmt.Errorf("resolver is not set")
 	}
 
 	instances, err := c.resolver.Resolve(ctx, service)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	if len(instances) == 0 {
-		return nil, fmt.Errorf("no instances found for service: %s", service)
+		return nil, "", fmt.Errorf("no instances found for service: %s", service)
 	}
 
-	// 选择第一个实例，获取其接口描述
 	selectedInstance := instances[0]
 	var interfaces []Api
 	err = json.Unmarshal([]byte(selectedInstance.Metadata["interfaces"]), &interfaces)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return interfaces, nil
+	return interfaces, selectedInstance.Address, nil
 }
