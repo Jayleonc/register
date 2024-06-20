@@ -22,7 +22,7 @@ func main() {
 	// 使用 Gin 框架创建 HTTP 服务器
 	engine := gin.Default()
 
-	// 构建全局的 ApiDescriptor
+	// 构建全局的 App
 	apiDescriptor := registry.NewApiDescriptor(engine)
 
 	// 配置路由，使用简化的 Register 方法
