@@ -25,13 +25,13 @@ type ServiceInterface struct {
 type ApiDescriptor struct {
 	mu         sync.Mutex
 	interfaces []ServiceInterface
-	engine     *gin.Engine
+	*gin.Engine
 }
 
 func NewApiDescriptor(engine *gin.Engine) *ApiDescriptor {
 	return &ApiDescriptor{
 		interfaces: make([]ServiceInterface, 0),
-		engine:     engine,
+		Engine:     engine,
 	}
 }
 
@@ -54,20 +54,20 @@ func (b *ApiDescriptor) GetInterfaces() []ServiceInterface {
 
 func (b *ApiDescriptor) GET(path string, handler gin.HandlerFunc, params []Param, returns []Return) {
 	b.AddInterface("GET", path, params, returns)
-	b.engine.GET(path, handler)
+	b.Engine.GET(path, handler)
 }
 
 func (b *ApiDescriptor) POST(path string, handler gin.HandlerFunc, params []Param, returns []Return) {
 	b.AddInterface("POST", path, params, returns)
-	b.engine.POST(path, handler)
+	b.Engine.POST(path, handler)
 }
 
 func (b *ApiDescriptor) PUT(path string, handler gin.HandlerFunc, params []Param, returns []Return) {
 	b.AddInterface("PUT", path, params, returns)
-	b.engine.PUT(path, handler)
+	b.Engine.PUT(path, handler)
 }
 
 func (b *ApiDescriptor) DELETE(path string, handler gin.HandlerFunc, params []Param, returns []Return) {
 	b.AddInterface("DELETE", path, params, returns)
-	b.engine.DELETE(path, handler)
+	b.Engine.DELETE(path, handler)
 }
