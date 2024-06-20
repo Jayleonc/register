@@ -3,7 +3,7 @@
 package wire
 
 import (
-	"Jayleonc/register/di"
+	"github.com/Jayleonc/register/di"
 	"github.com/google/wire"
 )
 

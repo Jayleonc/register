@@ -1,7 +1,7 @@
 package di
 
 import (
-	"Jayleonc/register/pkg/netx"
+	"github.com/Jayleonc/register/pkg/netx"
 	"time"
 )
 

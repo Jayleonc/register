@@ -1,9 +1,9 @@
 package main
 
 import (
-	"Jayleonc/register/internal/core/resolver"
-	"Jayleonc/register/sdk"
 	"context"
+	"github.com/Jayleonc/register/internal/core/resolver"
+	"github.com/Jayleonc/register/sdk"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"log"
 )

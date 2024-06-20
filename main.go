@@ -1,8 +1,8 @@
 package main
 
 import (
-	"Jayleonc/register/sdk"
 	"context"
+	"github.com/Jayleonc/register/sdk"
 	"github.com/gin-gonic/gin"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"log"

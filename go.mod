@@ -1,4 +1,4 @@
-module Jayleonc/register
+module github.com/Jayleonc/register
 
 go 1.21.8
 
