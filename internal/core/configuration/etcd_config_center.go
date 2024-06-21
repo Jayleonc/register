@@ -2,8 +2,12 @@ package configuration
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"time"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
@@ -12,8 +16,64 @@ type EtcdConfigCenter struct {
 	client *clientv3.Client
 }
 
-func NewEtcdConfigCenter(client *clientv3.Client) *EtcdConfigCenter {
-	return &EtcdConfigCenter{client: client}
+type EtcdConfigCenterOptions struct {
+	EtcdAddress   string
+	Username      string
+	Password      string
+	DialTimeout   time.Duration
+	LogLevel      string
+	TLSCertFile   string
+	TLSKeyFile    string
+	TLSCaFile     string
+	RetryAttempts int
+	RetryInterval time.Duration
+}
+
+func DefaultEtcdConfigCenterOptions() EtcdConfigCenterOptions {
+	return EtcdConfigCenterOptions{
+		EtcdAddress:   "localhost:2379",
+		DialTimeout:   5 * time.Second,
+		LogLevel:      "info",
+		RetryAttempts: 3,
+		RetryInterval: 1 * time.Second,
+	}
+}
+
+func NewEtcdConfigCenter(opts EtcdConfigCenterOptions) (*EtcdConfigCenter, error) {
+	clientConfig := clientv3.Config{
+		Endpoints:   []string{opts.EtcdAddress},
+		DialTimeout: opts.DialTimeout,
+	}
+
+	if opts.Username != "" && opts.Password != "" {
+		clientConfig.Username = opts.Username
+		clientConfig.Password = opts.Password
+	}
+
+	if opts.TLSCertFile != "" && opts.TLSKeyFile != "" && opts.TLSCaFile != "" {
+		tlsCert, err := tls.LoadX509KeyPair(opts.TLSCertFile, opts.TLSKeyFile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load key pair: %w", err)
+		}
+		caCertPool := x509.NewCertPool()
+		caCert, err := ioutil.ReadFile(opts.TLSCaFile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read CA cert file: %w", err)
+		}
+		caCertPool.AppendCertsFromPEM(caCert)
+
+		clientConfig.TLS = &tls.Config{
+			Certificates: []tls.Certificate{tlsCert},
+			RootCAs:      caCertPool,
+		}
+	}
+
+	client, err := clientv3.New(clientConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to etcd: %w", err)
+	}
+
+	return &EtcdConfigCenter{client: client}, nil
 }
 
 func (c *EtcdConfigCenter) PutConfig(ctx context.Context, key string, value string) error {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"github.com/Jayleonc/register/registry"
 	"github.com/gin-gonic/gin"
@@ -34,29 +33,6 @@ func main() {
 		})
 	})
 
-	// 演示如何使用配置中心
-	ctx := context.Background()
-	configCenter := registry.NewConfigCenter(client)
-	err = configCenter.PutConfig(ctx, "example_key", "example_value")
-	if err != nil {
-		log.Fatalf("Failed to put config: %v", err)
-	}
-	value, err := configCenter.GetConfig(ctx, "example_key")
-	if err != nil {
-		log.Fatalf("Failed to get config: %v", err)
-	}
-	log.Printf("Config value: %s", value)
-
-	// 监听配置变更
-	go func() {
-		watchCh, err := configCenter.WatchConfig(ctx, "example_key")
-		if err != nil {
-			log.Fatalf("Failed to watch config: %v", err)
-		}
-		for newValue := range watchCh {
-			log.Printf("Config changed: %s = %s", "example_key", newValue)
-		}
-	}()
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		return

@@ -14,17 +14,10 @@ import (
 )
 
 type templateData struct {
-	Structs    map[string]string
-	Interfaces []apiDef
-}
-
-type apiDef struct {
-	Method       string
-	Path         string
-	RequestType  string
-	ResponseType string
-	Params       []registry.Param
-	Returns      []registry.Return
+	Structs     map[string]string
+	Interfaces  []registry.Api
+	BaseURL     string
+	PackageName string
 }
 
 func ToCamelCase(s string) string {
@@ -88,7 +81,7 @@ func GenerateStructDefinitions(interfaces []registry.Api) map[string]string {
 	return structs
 }
 
-func GenerateClientCode(serviceName, baseURL, outputPath string, etcdClient *clientv3.Client) error {
+func GenerateClientCode(serviceName, outputPath string, etcdClient *clientv3.Client) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
@@ -99,27 +92,21 @@ func GenerateClientCode(serviceName, baseURL, outputPath string, etcdClient *cli
 		return fmt.Errorf("failed to create registry client: %v", err)
 	}
 
-	interfaces, err := registryClient.GetServiceInterfaces(ctx, serviceName)
+	interfaces, address, err := registryClient.GetServiceInterfaces(ctx, serviceName)
 	if err != nil {
 		return fmt.Errorf("failed to get service interfaces: %v", err)
 	}
 
+	baseURL := fmt.Sprintf("http://%s", address)
 	structs := GenerateStructDefinitions(interfaces)
 
-	data := templateData{
-		Structs:    structs,
-		Interfaces: make([]apiDef, len(interfaces)),
-	}
+	packageName := strings.Split(strings.TrimPrefix(interfaces[0].Path, "/"), "/")[0]
 
-	for i, api := range interfaces {
-		data.Interfaces[i] = apiDef{
-			Method:       api.Method,
-			Path:         api.Path,
-			RequestType:  ToCamelCase(api.Params[0].Name),
-			ResponseType: ToCamelCase(strings.TrimPrefix(api.Path, "/")) + "Response",
-			Params:       api.Params,
-			Returns:      api.Returns,
-		}
+	data := templateData{
+		Structs:     structs,
+		Interfaces:  interfaces,
+		BaseURL:     baseURL,
+		PackageName: packageName,
 	}
 
 	funcMap := template.FuncMap{
@@ -144,9 +131,8 @@ func GenerateClientCode(serviceName, baseURL, outputPath string, etcdClient *cli
 		return fmt.Errorf("failed to create output directory: %v", err)
 	}
 
-	// 使用路径的第一个单词作为文件名
-	firstPathWord := strings.Split(strings.TrimPrefix(data.Interfaces[0].Path, "/"), "/")[0]
-	filePath := fmt.Sprintf("%s/%s.go", outputPath, firstPathWord)
+	// 写入文件
+	filePath := fmt.Sprintf("%s/%s.go", outputPath, packageName)
 	err = ioutil.WriteFile(filePath, output.Bytes(), 0644)
 	if err != nil {
 		return fmt.Errorf("failed to write file: %v", err)
