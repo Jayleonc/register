@@ -2,7 +2,6 @@ package registry
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/Jayleonc/register/internal/core/registry"
 	"net/http"
 	"time"
@@ -50,25 +49,16 @@ func NewServer(name string, opts ...Option) *Server {
 	return server
 }
 
-func (s *Server) Register(interfaceBuilder *App) error {
-	// 构建接口信息
-	interfaces := interfaceBuilder.GetInterfaces()
-	interfaceData, err := json.Marshal(interfaces)
-	if err != nil {
-		return err
-	}
-
+func (s *Server) Register() error {
 	if s.registry != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), s.registryTimeout)
 		defer cancel()
 		serviceInstance := registry.ServiceInstance{
-			Name:    s.name,
-			Address: s.Server.Addr, // 使用传入的 listener
-			Metadata: map[string]string{
-				"interfaces": string(interfaceData),
-			},
+			Name:     s.name,
+			Address:  s.Server.Addr,
+			Metadata: map[string]string{},
 		}
-		err = s.registry.Register(ctx, serviceInstance)
+		err := s.registry.Register(ctx, serviceInstance)
 		if err != nil {
 			return err
 		}

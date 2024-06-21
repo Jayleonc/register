@@ -2,7 +2,6 @@ package registry
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -72,28 +71,4 @@ func (c *Client) Dial(ctx context.Context, service string) (*http.Client, error)
 	}
 
 	return c.Client, nil
-}
-
-func (c *Client) GetServiceInterfaces(ctx context.Context, service string) ([]Api, string, error) {
-	if c.resolver == nil {
-		return nil, "", fmt.Errorf("resolver is not set")
-	}
-
-	instances, err := c.resolver.Resolve(ctx, service)
-	if err != nil {
-		return nil, "", err
-	}
-
-	if len(instances) == 0 {
-		return nil, "", fmt.Errorf("no instances found for service: %s", service)
-	}
-
-	selectedInstance := instances[0]
-	var interfaces []Api
-	err = json.Unmarshal([]byte(selectedInstance.Metadata["interfaces"]), &interfaces)
-	if err != nil {
-		return nil, "", err
-	}
-
-	return interfaces, selectedInstance.Address, nil
 }
