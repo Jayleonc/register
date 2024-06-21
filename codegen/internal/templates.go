@@ -1,7 +1,7 @@
 package internal
 
 const ClientTemplate = `
-package client
+package {{.PackageName}}
 
 import (
 	"bytes"
@@ -10,12 +10,14 @@ import (
 	"net/http"
 )
 
-type Client struct {
+var url = "{{.BaseURL}}"
+
+type {{.PackageName | ToCamelCase}} struct {
 	baseURL string
 }
 
-func NewClient(baseURL string) *Client {
-	return &Client{baseURL: baseURL}
+func New{{.PackageName | ToCamelCase}}() *{{.PackageName | ToCamelCase}} {
+	return &{{.PackageName | ToCamelCase}}{baseURL: url}
 }
 
 {{range $key, $value := .Structs}}
@@ -23,13 +25,13 @@ func NewClient(baseURL string) *Client {
 {{end}}
 
 {{range .Interfaces}}
-type {{.ResponseType}} struct {
+type {{.Path | ToCamelCase}}Response struct {
 	{{range .Returns}}{{ToCamelCase .Name}} {{paramType .Type}} ` + "`json:\"{{.Name}}\"`" + `
 	{{end}}
 }
 
-func (c *Client) {{.Method}}_{{.Path | ToCamelCase}}(req {{.RequestType}}) ({{.ResponseType}}, error) {
-	var resp {{.ResponseType}}
+func (c *{{$.PackageName | ToCamelCase}}) {{.Method}}_{{.Path | ToCamelCase}}(req {{(index .Params 0).Name | ToCamelCase}}) ({{.Path | ToCamelCase}}Response, error) {
+	var resp {{.Path | ToCamelCase}}Response
 
 	url := fmt.Sprintf("%s{{.Path}}", c.baseURL)
 	body, err := json.Marshal(req)

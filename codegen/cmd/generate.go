@@ -10,9 +10,8 @@ import (
 
 var (
 	serviceName   string
-	baseURL       string
 	outputPath    string
-	etcdEndpoints []string
+	etcdEndpoints string
 )
 
 var generateCmd = &cobra.Command{
@@ -20,14 +19,26 @@ var generateCmd = &cobra.Command{
 	Short: "Generate client code",
 	Long:  `Generate client code for a specified service registered in etcd.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		var endpoints []string
+		if etcdEndpoints != "" {
+			endpoints = append(endpoints, etcdEndpoints)
+		}
+
+		fmt.Println("endpoints:", endpoints)
+
 		client, err := clientv3.New(clientv3.Config{
-			Endpoints: etcdEndpoints,
+			Endpoints: endpoints,
 		})
 		if err != nil {
 			log.Fatalf("Failed to create etcd client: %v", err)
 		}
 
-		err = internal.GenerateClientCode(serviceName, baseURL, outputPath, client)
+		// 如果没有提供输出路径，则使用默认值
+		if outputPath == "" {
+			outputPath = fmt.Sprintf("./internal/client/%s", serviceName)
+		}
+
+		err = internal.GenerateClientCode(serviceName, outputPath, client)
 		if err != nil {
 			log.Fatalf("Failed to generate client code: %v", err)
 		}
@@ -39,11 +50,8 @@ func init() {
 	rootCmd.AddCommand(generateCmd)
 
 	generateCmd.Flags().StringVar(&serviceName, "service", "", "Name of the service")
-	generateCmd.Flags().StringVar(&baseURL, "base-url", "", "Base URL of the service")
 	generateCmd.Flags().StringVar(&outputPath, "output", "", "Output path for the generated code")
-	generateCmd.Flags().StringSliceVar(&etcdEndpoints, "etcd-endpoints", []string{"localhost:2379"}, "Etcd endpoints")
+	generateCmd.Flags().StringVar(&etcdEndpoints, "etcd-endpoints", "localhost:2379", "Etcd endpoints")
 
 	generateCmd.MarkFlagRequired("service")
-	generateCmd.MarkFlagRequired("base-url")
-	generateCmd.MarkFlagRequired("output")
 }

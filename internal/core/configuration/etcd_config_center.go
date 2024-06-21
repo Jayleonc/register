@@ -17,7 +17,7 @@ type EtcdConfigCenter struct {
 }
 
 type EtcdConfigCenterOptions struct {
-	EtcdAddresses []string
+	EtcdAddress   string
 	Username      string
 	Password      string
 	DialTimeout   time.Duration
@@ -31,7 +31,7 @@ type EtcdConfigCenterOptions struct {
 
 func DefaultEtcdConfigCenterOptions() EtcdConfigCenterOptions {
 	return EtcdConfigCenterOptions{
-		EtcdAddresses: []string{"localhost:2379"},
+		EtcdAddress:   "localhost:2379",
 		DialTimeout:   5 * time.Second,
 		LogLevel:      "info",
 		RetryAttempts: 3,
@@ -41,7 +41,7 @@ func DefaultEtcdConfigCenterOptions() EtcdConfigCenterOptions {
 
 func NewEtcdConfigCenter(opts EtcdConfigCenterOptions) (*EtcdConfigCenter, error) {
 	clientConfig := clientv3.Config{
-		Endpoints:   opts.EtcdAddresses,
+		Endpoints:   []string{opts.EtcdAddress},
 		DialTimeout: opts.DialTimeout,
 	}
 
