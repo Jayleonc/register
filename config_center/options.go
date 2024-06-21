@@ -11,12 +11,11 @@ func DefaultEtcdConfigCenterOptions() EtcdConfigCenterOptions {
 	return configuration.DefaultEtcdConfigCenterOptions()
 }
 
-func WithEtcdAddress(address string) ClientOption {
+func WithEtcdAddresses(addresses []string) ClientOption {
 	return func(o *configuration.EtcdConfigCenterOptions) {
-		o.EtcdAddress = address
+		o.EtcdAddresses = addresses
 	}
 }
-
 func WithCredentials(username, password string) ClientOption {
 	return func(o *configuration.EtcdConfigCenterOptions) {
 		o.Username = username
