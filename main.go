@@ -22,9 +22,6 @@ func main() {
 	}
 
 	router := gin.Default()
-	// 构建全局的 InterfaceBuilder
-	globalInterfaceBuilder := registry.NewApiDescriptor(router)
-	// 使用 Gin 框架创建 HTTP 服务器
 
 	// 配置路由
 	router.GET("/health", func(c *gin.Context) {
@@ -52,7 +49,7 @@ func main() {
 	)
 
 	// 注册服务
-	if err := server.Register(globalInterfaceBuilder); err != nil {
+	if err := server.Register(); err != nil {
 		log.Fatalf("Failed to register service: %v", err)
 	}
 	defer server.Close()

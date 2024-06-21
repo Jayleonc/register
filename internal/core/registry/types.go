@@ -10,6 +10,8 @@ type ServiceInstance struct {
 	Name     string            `json:"name"`
 	Address  string            `json:"address"`
 	Metadata map[string]string `json:"metadata,omitempty"`
+
+	// 如果有其他数据，就在这里添加
 }
 
 // Event 表示服务实例的变更事件

@@ -2,14 +2,12 @@ package main
 
 import (
 	"context"
-	"github.com/Jayleonc/register/internal/core/resolver"
 	"github.com/Jayleonc/register/registry"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"log"
 )
 
 func main() {
-	// 创建 etcd 客户端和注册中心实例
 	client, err := clientv3.New(clientv3.Config{
 		Endpoints: []string{"localhost:2379"},
 	})
@@ -17,28 +15,26 @@ func main() {
 		log.Fatalf("Failed to create etcd client: %v", err)
 	}
 
-	// 创建 SDK 客户端
 	sdkClient, err := registry.NewClient(
-		registry.ClientWithResolver(resolver.NewEtcdResolver(client)),
+		registry.ClientWithResolver(registry.NewEtcdResolver(client)),
 	)
 	if err != nil {
 		log.Fatalf("Failed to create SDK client: %v", err)
 	}
 
-	// 获取日志服务的接口描述
 	ctx := context.Background()
-	interfaces, err := sdkClient.GetServiceInterfaces(ctx, "user_service")
+	httpClient, err := sdkClient.Dial(ctx, "user_service")
 	if err != nil {
-		log.Fatalf("Failed to get service interfaces: %v", err)
+		log.Fatalf("Failed to dial service: %v", err)
 	}
 
-	for _, iface := range interfaces {
-		log.Printf("  interface: %s %s", iface.Method, iface.Path)
-		for _, param := range iface.Params {
-			log.Printf("Param: field:%s type:%s", param.Name, param.Type)
-		}
-		for _, ret := range iface.Returns {
-			log.Printf("Return: field:%s type:%s", ret.Name, ret.Type)
-		}
+	// 使用 httpClient 进行服务调用
+	resp, err := httpClient.Get("http://user_service/health")
+	if err != nil {
+		log.Fatalf("Failed to call service: %v", err)
 	}
+	defer resp.Body.Close()
+
+	// 处理响应
+	log.Println("Service response status:", resp.Status)
 }
