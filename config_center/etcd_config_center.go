@@ -2,7 +2,7 @@ package config_center
 
 import (
 	"context"
-	"github.com/Jayleonc/register/internal/core/configuration"
+	"git.daochat.cn/service/registry/internal/core/configuration"
 )
 
 type ConfigCenter interface {

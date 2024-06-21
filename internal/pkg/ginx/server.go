@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Jayleonc/register/pkg/netx"
+	"git.daochat.cn/service/registry/pkg/netx"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"

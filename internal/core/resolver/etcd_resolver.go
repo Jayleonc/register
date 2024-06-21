@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Jayleonc/register/internal/core/registry"
+	"git.daochat.cn/service/registry/internal/core/registry"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 

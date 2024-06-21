@@ -1,8 +1,8 @@
 package web
 
 import (
-	"github.com/Jayleonc/register/internal/domain"
-	"github.com/Jayleonc/register/pkg/ginx"
+	"git.daochat.cn/service/registry/internal/domain"
+	"git.daochat.cn/service/registry/pkg/ginx"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"

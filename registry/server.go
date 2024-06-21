@@ -2,7 +2,7 @@ package registry
 
 import (
 	"context"
-	"github.com/Jayleonc/register/internal/core/registry"
+	"git.daochat.cn/service/registry/internal/core/registry"
 	"net/http"
 	"time"
 

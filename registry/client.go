@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/Jayleonc/register/internal/core/resolver"
+	"git.daochat.cn/service/registry/internal/core/resolver"
 )
 
 type ClientOption func(c *Client)

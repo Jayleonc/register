@@ -1,7 +1,7 @@
 package command
 
 import (
-	"github.com/Jayleonc/register/cmd/wire"
+	"git.daochat.cn/service/registry/cmd/wire"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"

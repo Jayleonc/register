@@ -1,7 +1,7 @@
 package di
 
 import (
-	"github.com/Jayleonc/register/pkg/netx"
+	"git.daochat.cn/service/registry/pkg/netx"
 	"time"
 )
 

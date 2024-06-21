@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/Jayleonc/register/registry"
+	"git.daochat.cn/service/registry/registry"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"log"
 )

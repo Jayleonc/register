@@ -2,7 +2,7 @@ package resolver
 
 import (
 	"context"
-	"github.com/Jayleonc/register/internal/core/registry"
+	"git.daochat.cn/service/registry/internal/core/registry"
 )
 
 // Resolver 接口定义了解析服务实例位置的方法
