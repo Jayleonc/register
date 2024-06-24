@@ -3,7 +3,7 @@ package ratelimit
 import (
 	_ "embed"
 	"fmt"
-	"git.daochat.cn/service/registry/pkg/limiter"
+	"github.com/Jayleonc/register/internal/pkg/limiter"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

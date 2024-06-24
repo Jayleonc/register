@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"git.daochat.cn/service/registry/cmd/command"
+	"github.com/Jayleonc/register/cmd/command"
 	"github.com/spf13/cobra"
 	"os"
 )

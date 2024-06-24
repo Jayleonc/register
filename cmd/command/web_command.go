@@ -1,7 +1,7 @@
 package command
 
 import (
-	"git.daochat.cn/service/registry/cmd/wire"
+	"github.com/Jayleonc/register/cmd/wire"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
@@ -45,7 +45,6 @@ func runApp() {
 	log.Println("All services stopped, exiting application.")
 }
 
-// todo 未来使用 etcd 配置中心
 func initConfig() {
 	viper.SetConfigType("yaml")
 	viper.SetConfigFile(Flags.configPath)

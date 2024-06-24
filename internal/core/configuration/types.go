@@ -9,4 +9,5 @@ type ConfigCenter interface {
 	GetConfig(ctx context.Context, key string) (string, error)
 	DeleteConfig(ctx context.Context, key string) error
 	WatchConfig(ctx context.Context, key string) (<-chan string, error)
+	ListConfig(ctx context.Context, prefix string) (map[string]string, error)
 }

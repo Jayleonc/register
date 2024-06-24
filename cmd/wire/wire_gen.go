@@ -7,7 +7,8 @@
 package wire
 
 import (
-	"git.daochat.cn/service/registry/di"
+	"github.com/Jayleonc/register/di"
+	"github.com/Jayleonc/register/internal/web"
 	"github.com/google/wire"
 )
 
@@ -16,7 +17,10 @@ import (
 func InitWebServer() *App {
 	cmdable := di.InitRedis()
 	v := di.InitGinMiddlewares(cmdable)
-	server := di.InitWebServer(v)
+	client := di.InitEtcdClient()
+	config_centerClient := di.InitConfigClient()
+	configHandler := web.NewConfigHandler(config_centerClient)
+	server := di.InitWebServer(v, client, configHandler)
 	app := &App{
 		Web: server,
 	}
@@ -30,3 +34,6 @@ var thirdPartySet = wire.NewSet(di.InitDB, di.InitRedis)
 
 // webServerSet 用来注入 web 服务
 var webServerSet = wire.NewSet(di.InitWebServer, di.InitGinMiddlewares)
+
+// configCenterSet 用来注入配置中心
+var configCenterSet = wire.NewSet(web.NewConfigHandler, di.InitEtcdClient, di.InitConfigClient)

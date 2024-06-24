@@ -126,3 +126,16 @@ func (c *EtcdConfigCenter) WatchConfig(ctx context.Context, key string) (<-chan 
 	}()
 	return ch, nil
 }
+
+func (c *EtcdConfigCenter) ListConfig(ctx context.Context, prefix string) (map[string]string, error) {
+	resp, err := c.client.Get(ctx, prefix, clientv3.WithPrefix())
+	if err != nil {
+		return nil, fmt.Errorf("failed to list config: %w", err)
+	}
+
+	configs := make(map[string]string)
+	for _, kv := range resp.Kvs {
+		configs[string(kv.Key)] = string(kv.Value)
+	}
+	return configs, nil
+}

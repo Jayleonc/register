@@ -2,18 +2,11 @@ package config_center
 
 import (
 	"context"
-	"git.daochat.cn/service/registry/internal/core/configuration"
+	"github.com/Jayleonc/register/internal/core/configuration"
 )
 
-type ConfigCenter interface {
-	PutConfig(ctx context.Context, key string, value string) error
-	GetConfig(ctx context.Context, key string) (string, error)
-	DeleteConfig(ctx context.Context, key string) error
-	WatchConfig(ctx context.Context, key string) (<-chan string, error)
-}
-
 type Client struct {
-	configCenter ConfigCenter
+	configCenter configuration.ConfigCenter
 }
 
 type ClientOption func(*configuration.EtcdConfigCenterOptions)
@@ -48,4 +41,8 @@ func (c *Client) DeleteConfig(ctx context.Context, key string) error {
 
 func (c *Client) WatchConfig(ctx context.Context, key string) (<-chan string, error) {
 	return c.configCenter.WatchConfig(ctx, key)
+}
+
+func (c *Client) ListConfig(ctx context.Context, prefix string) (map[string]string, error) {
+	return c.configCenter.ListConfig(ctx, prefix)
 }

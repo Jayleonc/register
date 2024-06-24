@@ -1,7 +1,7 @@
 package config_center
 
 import (
-	"git.daochat.cn/service/registry/internal/core/configuration"
+	"github.com/Jayleonc/register/internal/core/configuration"
 	"time"
 )
 

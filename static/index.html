@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Etcd Config Center</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">Etcd Config Center</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Put Config</h2>
+                    <form id="put-form">
+                        <div class="form-group">
+                            <label for="put-key">Key:</label>
+                            <input type="text" class="form-control" id="put-key" name="key" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="put-value">Value:</label>
+                            <input type="text" class="form-control" id="put-value" name="value" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Put</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Get Config</h2>
+                    <form id="get-form">
+                        <div class="form-group">
+                            <label for="get-key">Key:</label>
+                            <input type="text" class="form-control" id="get-key" name="key" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Get</button>
+                    </form>
+                    <pre id="get-result" class="mt-3"></pre>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Delete Config</h2>
+                    <form id="delete-form">
+                        <div class="form-group">
+                            <label for="delete-key">Key:</label>
+                            <input type="text" class="form-control" id="delete-key" name="key" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Watch Config</h2>
+                    <form id="watch-form">
+                        <div class="form-group">
+                            <label for="watch-key">Key:</label>
+                            <input type="text" class="form-control" id="watch-key" name="key" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Watch</button>
+                    </form>
+                    <pre id="watch-result" class="mt-3"></pre>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">List Config</h2>
+                    <form id="list-form">
+                        <div class="form-group">
+                            <label for="list-prefix">Prefix:</label>
+                            <input type="text" class="form-control" id="list-prefix" name="prefix" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">List</button>
+                    </form>
+                    <pre id="list-result" class="mt-3"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('put-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const key = document.getElementById('put-key').value;
+        const value = document.getElementById('put-value').value;
+        const response = await fetch('/put', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key, value })
+        });
+        const result = await response.json();
+        alert(JSON.stringify(result));
+    });
+
+    document.getElementById('get-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const key = document.getElementById('get-key').value;
+        const response = await fetch(`/get?key=${key}`);
+        const result = await response.json();
+        document.getElementById('get-result').innerText = JSON.stringify(result, null, 2);
+    });
+
+    document.getElementById('delete-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const key = document.getElementById('delete-key').value;
+        const response = await fetch(`/delete?key=${key}`, {
+            method: 'DELETE'
+        });
+        const result = await response.json();
+        alert(JSON.stringify(result));
+    });
+
+    document.getElementById('watch-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const key = document.getElementById('watch-key').value;
+        const eventSource = new EventSource(`/watch?key=${key}`);
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            document.getElementById('watch-result').innerText = `Key: ${data.key}, Value: ${data.value}`;
+        };
+    });
+
+    document.getElementById('list-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const prefix = document.getElementById('list-prefix').value;
+        const response = await fetch(`/list?prefix=${prefix}`);
+        const result = await response.json();
+        document.getElementById('list-result').innerText = JSON.stringify(result, null, 2);
+    });
+</script>
+</body>
+</html>

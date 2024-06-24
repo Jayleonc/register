@@ -3,7 +3,8 @@
 package wire
 
 import (
-	"git.daochat.cn/service/registry/di"
+	"github.com/Jayleonc/register/di"
+	"github.com/Jayleonc/register/internal/web"
 	"github.com/google/wire"
 )
 
@@ -21,10 +22,17 @@ var webServerSet = wire.NewSet(
 	di.InitGinMiddlewares,
 )
 
+// configCenterSet 用来注入配置中心
+var configCenterSet = wire.NewSet(
+	web.NewConfigHandler,
+	di.InitEtcdClient,
+	di.InitConfigClient,
+)
+
 func InitWebServer() *App {
 	wire.Build(
 		thirdPartySet, webServerSet,
-
+		configCenterSet,
 		// 依赖注入
 		wire.Struct(new(App), "*"),
 	)

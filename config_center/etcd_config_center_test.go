@@ -13,7 +13,7 @@ func TestNewConfigCenter(t *testing.T) {
 	ctx := context.Background()
 
 	client, err := NewClient(
-		WithEtcdAddress("localhost:2379"),
+		WithEtcdAddresses([]string{"localhost:2379"}),
 		//WithCredentials("user", "password"),
 		WithDialTimeout(10*time.Second),
 		//WithLogLevel("debug"),

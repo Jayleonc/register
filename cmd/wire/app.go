@@ -1,6 +1,8 @@
 package wire
 
-import "git.daochat.cn/service/registry/internal/pkg/ginx"
+import (
+	"github.com/Jayleonc/register/internal/pkg/ginx"
+)
 
 type App struct {
 	Web *ginx.Server

@@ -2,8 +2,8 @@ package registry
 
 import (
 	"context"
-	"git.daochat.cn/service/registry/internal/core/registry"
-	"git.daochat.cn/service/registry/internal/core/resolver"
+	"github.com/Jayleonc/register/internal/core/registry"
+	"github.com/Jayleonc/register/internal/core/resolver"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 

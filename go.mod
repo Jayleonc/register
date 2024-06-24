@@ -1,4 +1,4 @@
-module git.daochat.cn/service/registry
+module github.com/Jayleonc/register
 
 go 1.21.8
 

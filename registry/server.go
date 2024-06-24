@@ -2,7 +2,8 @@ package registry
 
 import (
 	"context"
-	"git.daochat.cn/service/registry/internal/core/registry"
+	"errors"
+	"github.com/Jayleonc/register/internal/core/registry"
 	"net/http"
 	"time"
 
@@ -11,12 +12,21 @@ import (
 
 type Server struct {
 	name            string
+	address         string
 	registry        *registry.EtcdRegistry
 	registryTimeout time.Duration
 	*http.Server
 }
 
 type Option func(*Server)
+
+// MustWithAddress 用于注册服务的地址
+// 如果没有调用这个方法，就要调用一次 UpdateAddress 方法
+func MustWithAddress(address string) Option {
+	return func(s *Server) {
+		s.address = address
+	}
+}
 
 func WithRegistry(client *clientv3.Client) Option {
 	return func(s *Server) {
@@ -51,11 +61,14 @@ func NewServer(name string, opts ...Option) *Server {
 
 func (s *Server) Register() error {
 	if s.registry != nil {
+		if s.address == "" {
+			return errors.New("address is empty")
+		}
 		ctx, cancel := context.WithTimeout(context.Background(), s.registryTimeout)
 		defer cancel()
 		serviceInstance := registry.ServiceInstance{
 			Name:     s.name,
-			Address:  s.Server.Addr,
+			Address:  s.address,
 			Metadata: map[string]string{},
 		}
 		err := s.registry.Register(ctx, serviceInstance)
@@ -73,7 +86,7 @@ func (s *Server) Close() error {
 		defer cancel()
 		err := s.registry.UnRegister(ctx, registry.ServiceInstance{
 			Name:    s.name,
-			Address: s.Server.Addr,
+			Address: s.address,
 		})
 		return err
 	}
@@ -83,4 +96,8 @@ func (s *Server) Close() error {
 
 func (s *Server) SubscribeAllServices() (<-chan registry.Event, error) {
 	return s.registry.SubscribeAll()
+}
+
+func (s *Server) UpdateAddress(address string) {
+	s.address = address
 }
